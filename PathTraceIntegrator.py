@@ -57,6 +57,7 @@ class PathTraceIntegrator:
             if isinstance(objeto, Light):
                 return objeto.color
             else:
+                # colocar depth == ao valor da variável depth no arquivo cornellroom.sdl
                 if depth == 0 :
                     for l in range (0, 9):
                         lx = random.uniform(-0.9100, 0.9100)
