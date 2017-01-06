@@ -1,9 +1,8 @@
 from Algebra import RGBColour
-from Algebra import BLACK, Vector3D, Cross, Normalize, Length, Dot, local_color, Ray, flip_direction, random_direction
-from objetos import Objeto, Light, ObjectQuadric
+from Algebra import BLACK, Vector3D, Normalize, Length, Dot, local_color, Ray, flip_direction, random_direction
+from objetos import Light
 import random
-from math import sqrt
-from math import pow
+from math import sqrt, pow
 
 class PathTraceIntegrator:
     background = BLACK # Cor do Background
@@ -15,35 +14,30 @@ class PathTraceIntegrator:
 
 
     #trace light path
-    def trace_ray(self, ray, depth, nRefractedInitial, minDepth):
+    def trace_ray(self, ray, depth, nRefractedInitial, minDepth, eye):
         difuso = BLACK
         especular = BLACK
         transmitido = BLACK
         self.nRefractedInitial = nRefractedInitial
         temLuz = 1
         result = BLACK
+        lp = 1.0
 
         # Checando interseções com cada objeto
         dist = 100
         dist2 = 100
         dist3 = 100
         hit = False
-        hit2 = False
-        hit3 = False
         objeto = 1
         hit_point = Vector3D(0.0, 0.0, 0.0)
-        hit_point2 = Vector3D(0.0, 0.0, 0.0)
-        hit_point3 = Vector3D(0.0, 0.0, 0.0)
         normal = Vector3D(0.0, 0.0, 0.0)
-        normal2 = Vector3D(0.0, 0.0, 0.0)
-        normal3 = Vector3D(0.0, 0.0, 0.0)
-        objeto2 = self.obj_list
-        objeto3 = 0.0
 
         for obj in self.obj_list:
             inter = obj.intersect(ray)
             tmp_hit = inter[0]
             distance = inter[1]
+            if isinstance(objeto, Light):
+                lp = objeto.lp
 
             if tmp_hit and distance < dist:
                 dist = distance
@@ -54,17 +48,15 @@ class PathTraceIntegrator:
 
         if hit: ## Se o raio bateu no objeto calculamos a cor do ponto
             if isinstance(objeto, Light):
-               return (objeto.color * objeto.lp, 1)
+                return (objeto.color * objeto.lp, 1)
             else:
-                # colocar depth == ao valor da variável depth no arquivo cornellroom.sdl
+                # Só para os primeiros raios
                 if depth == minDepth :
                     for l in range (0, 9):
                         lx = random.uniform(-0.9100, 0.9100)
                         lz = random.uniform(-23.3240, -26.4880)
-                        shadow_ray2 = Ray(Vector3D(hit_point.x, hit_point.y, hit_point.z), Vector3D(lx, 3.8360, lz))
-                        shadow_ray2.d = Vector3D(shadow_ray2.d.x - hit_point.x, shadow_ray2.d.y - hit_point.y,
-                                                 shadow_ray2.d.z - hit_point.z)
-                        shadow_ray2.d = Normalize(shadow_ray2.d)
+                        luz = Normalize(Vector3D(lx, 3.8360, lz) - hit_point)
+                        shadow_ray2 = Ray(Vector3D(hit_point.x, hit_point.y, hit_point.z), luz)
                         for obj3 in self.obj_list:
                             inter3 = obj3.intersect(shadow_ray2)
                             tmp_hit3 = inter3[0]
@@ -74,23 +66,18 @@ class PathTraceIntegrator:
                                 dist3 = distance3
                                 objeto3 = obj3
                                 hit3 = tmp_hit3
-                                hit_point3 = inter3[2]
-                                normal3 = inter3[3]
                                 temLuz = 0
                                 if hit3:  ## Se o raio bateu no objeto calculamos a cor do ponto
                                     if isinstance(objeto3, Light):
                                         temLuz = 1
 
                         if temLuz == 0.0:
-                            #if objeto.color == objeto3.color:
-                             #   result = local_color(objeto, normal, ray, self.ambient)
-                              #  break
                             pass
                         else:
-                            result = local_color(objeto, normal, ray, self.ambient)
+                            result = local_color(objeto, normal, ray, eye, lp)
                             break
                 else:
-                    result = local_color(objeto, normal, ray, self.ambient)
+                    result = local_color(objeto, normal, ray, eye, lp)
 
         else:
 
@@ -106,15 +93,12 @@ class PathTraceIntegrator:
                 x = random.random()
                 y = random.random()
                 dir = random_direction(x, y, normal)
-                #dir2 = Normalize(dir)
 
                 # shadow ray
                 lx = random.uniform(-0.9100, 0.9100)
                 lz = random.uniform(-23.3240, -26.4880)
-                shadow_ray = Ray(Vector3D(dir.x, dir.y, dir.z), Vector3D(lx, 3.8360, lz))
-                shadow_ray.d = Vector3D(shadow_ray.d.x - dir.x, shadow_ray.d.y - dir.y,
-                                         shadow_ray.d.z - dir.z)
-                shadow_ray.d = Normalize(shadow_ray.d)
+                luz = Normalize(Vector3D(lx, 3.8360, lz) - dir)
+                shadow_ray = Ray(Vector3D(dir.x, dir.y, dir.z), luz)
                 for obj2 in self.obj_list:
                     inter2 = obj2.intersect(shadow_ray)
                     tmp_hit2 = inter2[0]
@@ -124,8 +108,6 @@ class PathTraceIntegrator:
                         dist2 = distance2
                         objeto2 = obj2
                         hit2 = tmp_hit2
-                        hit_point2 = inter2[2]
-                        normal2 = inter2[3]
                         temLuz = 0
                         if hit2:  ## Se o raio bateu no objeto calculamos a cor do ponto
                             if isinstance(objeto2, Light):
@@ -135,20 +117,17 @@ class PathTraceIntegrator:
                     difuso = BLACK
                 else:
                     new_ray = Ray(hit_point, Normalize(dir))
-                    (difuso, luz) = self.trace_ray(new_ray, depth - 1, objeto.r, minDepth)
+                    (difuso, luz) = self.trace_ray(new_ray, depth - 1, objeto.r, minDepth, eye)
             elif aleatorio < obj.kd + obj.ks:        #         ## Raio especular
                 L = Normalize(flip_direction(ray.d))
                 N = objeto.normal
                 R = (N * (Dot(N, L)) - L) * 2.0
-                #R2 = Normalize(R)
 
                 # shadow ray
                 lx = random.uniform(-0.9100, 0.9100)
                 lz = random.uniform(-23.3240, -26.4880)
-                shadow_ray = Ray(Vector3D(R.x, R.y, R.z), Vector3D(lx, 3.8360, lz))
-                shadow_ray.d = Vector3D(shadow_ray.d.x - R.x, shadow_ray.d.y - R.y,
-                                        shadow_ray.d.z - R.z)
-                shadow_ray.d = Normalize(shadow_ray.d)
+                luz = Normalize(Vector3D(lx, 3.8360, lz) - R)
+                shadow_ray = Ray(Vector3D(R.x, R.y, R.z), luz)
                 for obj2 in self.obj_list:
                     inter2 = obj2.intersect(shadow_ray)
                     tmp_hit2 = inter2[0]
@@ -158,8 +137,6 @@ class PathTraceIntegrator:
                         dist2 = distance2
                         objeto2 = obj2
                         hit2 = tmp_hit2
-                        hit_point2 = inter2[2]
-                        normal2 = inter2[3]
                         temLuz = 0
                         if hit2:  ## Se o raio bateu no objeto calculamos a cor do ponto
                             if isinstance(objeto2, Light):
@@ -169,7 +146,7 @@ class PathTraceIntegrator:
                     especular = BLACK
                 else:
                     new_ray = Ray(hit_point, Normalize(R))
-                    (especular, luz) = self.trace_ray(new_ray, depth - 1, objeto.r, minDepth)
+                    (especular, luz) = self.trace_ray(new_ray, depth - 1, objeto.r, minDepth, eye)
             else:                                               ## Raio Transmitido
                 if (objeto.kt > 0):
                     L = Normalize(ray.d)
@@ -187,16 +164,14 @@ class PathTraceIntegrator:
                             nRefractedInitial = 1.0
                         if (cos1 > 0) :
                             transmitido = (L * divisao) + (N * ((divisao * cos1) - cos2))
-                            #transmitido2 = Normalize(transmitido)
                         else:
                             transmitido = (L * divisao) + (N * ((divisao * cos1) + cos2))
-                            #transmitido2 = Normalize(transmitido)
 
                         # shadow ray
-                        shadow_ray = Ray(Vector3D(transmitido.x, transmitido.y, transmitido.z), Vector3D(lx, 3.8360, lz))
-                        shadow_ray.d = Vector3D(shadow_ray.d.x - transmitido.x, shadow_ray.d.y - transmitido.y,
-                                                shadow_ray.d.z - transmitido.z)
-                        shadow_ray.d = Normalize(shadow_ray.d)
+                        lx = random.uniform(-0.9100, 0.9100)
+                        lz = random.uniform(-23.3240, -26.4880)
+                        luz = Normalize(Vector3D(lx, 3.8360, lz) - transmitido)
+                        shadow_ray = Ray(Vector3D(transmitido.x, transmitido.y, transmitido.z), luz)
                         for obj2 in self.obj_list:
                             inter2 = obj2.intersect(shadow_ray)
                             tmp_hit2 = inter2[0]
@@ -206,8 +181,6 @@ class PathTraceIntegrator:
                                 dist2 = distance2
                                 objeto2 = obj2
                                 hit2 = tmp_hit2
-                                hit_point2 = inter2[2]
-                                normal2 = inter2[3]
                                 temLuz = 0
                                 if hit2:  ## Se o raio bateu no objeto calculamos a cor do ponto
                                     if isinstance(objeto2, Light):
@@ -217,6 +190,6 @@ class PathTraceIntegrator:
                             transmitido = BLACK
                         else:
                             new_ray = Ray(hit_point, Normalize(transmitido))
-                            (transmitido, luz) = self.trace_ray(new_ray, depth-1,  nRefractedInitial, minDepth)
+                            (transmitido, luz) = self.trace_ray(new_ray, depth-1,  nRefractedInitial, minDepth, eye)
 
-        return (result + difuso * objeto.kd + especular * objeto.ks + transmitido * objeto.kt , 0)
+        return result + difuso * objeto.kd + especular * objeto.ks + transmitido * objeto.kt , 0

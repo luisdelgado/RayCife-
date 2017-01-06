@@ -3,7 +3,6 @@ Responsavel por controlar o aplicativo
 """
 from helper import read
 from tkinter import * #for GUI
-from Algebra import Vector3D
 from Camera import *
 from PathTraceIntegrator import PathTraceIntegrator, RGBColour
 

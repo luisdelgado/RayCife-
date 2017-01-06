@@ -44,10 +44,10 @@ object back.obj 1.0 1.0 1.0 0.3 0.7 0 0 5 0
 object ceiling.obj 1.0 1.0 1.0 0.3 0.7 0 0 5 0
 
 # cube 1 WHITE
-object cube1.obj 0.5 0.5 0.0 0.8 0.7 0.0 0 5 0
+object cube1.obj 0.5 0.5 0.0 0.8 0.7 0 0 5 0
 
 # cube 2 WHITE
-object cube2.obj 0.1 0.7 0.4 0.8 0.7 0.0 0 5 0
+object cube2.obj 0.1 0.7 0.4 0.8 0.7 0 0 5 0
 
 # objectquadric RED a b c d e f g h j k red green blue ka kd ks kt n
 # objectquadric 1 1 1 0 0 0 0 5 10 -200 1.0 0.0 0.0 1.0 1.0 1.0 1.0 5

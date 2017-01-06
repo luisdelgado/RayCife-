@@ -93,7 +93,7 @@ class Camera:
                     sp_x = (x + random()) - (self.width / 2.0)
                     sp_y = (y + random()) - (self.height / 2.0)
                     ray.d = self.get_direction(sp_x, sp_y)
-                    (raio, luz) = integrator.trace_ray(ray, depth, 1.0, minDepth)
+                    (raio, luz) = integrator.trace_ray(ray, depth, 1.0, minDepth, self.eye)
                     pixel = pixel + raio
                 pixel = pixel / self.spp
                 if (luz) == 0:

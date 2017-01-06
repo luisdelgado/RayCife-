@@ -113,13 +113,9 @@ def Parallelogram_Area(A, B, P):
 
     return Dot(v, s)
 
-def local_color(obj, hit_normal, ray, ambient):
+def local_color(obj, hit_normal, ray, eye, lp):
     # Iluminação do objeto
     color = obj.color
-
-    # Iluminação ambiente
-    ia = BLACK
-    color = color + ia
 
     # Iluminação difusa
     p1 = Normalize(flip_direction(ray.d))
@@ -136,14 +132,13 @@ def local_color(obj, hit_normal, ray, ambient):
     if (angulo < 0) :
         angulo * -1
 
-    lv = (obj.color) * (angulo * float(obj.kd))
+    lv = (obj.color) * (angulo * float(obj.kd) * lp)
 
     color = color + lv
 
     # Iluminação especular
     L = flip_direction(ray.d)
     p1 = Normalize(Vector3D(L.x * (-1), L.y, L.z))
-    from main import eye
     p2 = eye
 
     if (Length(p1) != 1):
@@ -154,7 +149,7 @@ def local_color(obj, hit_normal, ray, ambient):
 
     angulo = Dot(p1, p2)
 
-    lv = WHITE * (float(obj.ks) * pow(angulo, float(obj.n)))
+    lv = WHITE * (float(obj.ks) * pow(angulo, float(obj.n)) * lp)
 
     color = color + lv
 
