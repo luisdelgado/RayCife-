@@ -81,7 +81,7 @@ class Camera:
         return Normalize(direction)
 
     # spawns spp number of rays for each pixel
-    def render(self, integrator, file_name, depth, tmapping):
+    def render(self, integrator, file_name, depth, tmapping, minDepth):
         ray = Ray()
         ray.o = self.eye
         pixel = BLACK  # create black pixel
@@ -93,9 +93,11 @@ class Camera:
                     sp_x = (x + random()) - (self.width / 2.0)
                     sp_y = (y + random()) - (self.height / 2.0)
                     ray.d = self.get_direction(sp_x, sp_y)
-                    pixel = pixel + integrator.trace_ray(ray, depth, 1.0)
+                    (raio, luz) = integrator.trace_ray(ray, depth, 1.0, minDepth)
+                    pixel = pixel + raio
                 pixel = pixel / self.spp
-                tonemapping(pixel, tmapping)
+                if (luz) == 0:
+                    tonemapping(pixel, tmapping)
                 self.save_pixel(pixel, x, y)
             print((x / self.width) * 100, "%")
         # save image to file

@@ -1,5 +1,5 @@
 from Algebra import RGBColour
-from Algebra import BLACK, Vector3D, Cross, Normalize, Length, Dot, local_color, Ray, flip_direction, random_direction, WHITE
+from Algebra import BLACK, Vector3D, Cross, Normalize, Length, Dot, local_color, Ray, flip_direction, random_direction
 from objetos import Objeto, Light, ObjectQuadric
 import random
 from math import sqrt
@@ -15,7 +15,7 @@ class PathTraceIntegrator:
 
 
     #trace light path
-    def trace_ray(self, ray, depth, nRefractedInitial):
+    def trace_ray(self, ray, depth, nRefractedInitial, minDepth):
         difuso = BLACK
         especular = BLACK
         refletido = BLACK
@@ -38,7 +38,7 @@ class PathTraceIntegrator:
         normal = Vector3D(0.0, 0.0, 0.0)
         normal2 = Vector3D(0.0, 0.0, 0.0)
         normal3 = Vector3D(0.0, 0.0, 0.0)
-        objeto2 = 0.0
+        objeto2 = self.obj_list
         objeto3 = 0.0
 
         for obj in self.obj_list:
@@ -55,10 +55,10 @@ class PathTraceIntegrator:
 
         if hit: ## Se o raio bateu no objeto calculamos a cor do ponto
             if isinstance(objeto, Light):
-                return objeto.color
+               return (objeto.color * objeto.lp, 1)
             else:
                 # colocar depth == ao valor da variável depth no arquivo cornellroom.sdl
-                if depth == 0 :
+                if depth == minDepth :
                     for l in range (0, 9):
                         lx = random.uniform(-0.9100, 0.9100)
                         lz = random.uniform(-23.3240, -26.4880)
@@ -95,7 +95,7 @@ class PathTraceIntegrator:
 
         else:
 
-            return self.background
+            return (self.background, 0)
 
 
         # Calculando os Raios Secúndarios
@@ -134,13 +134,9 @@ class PathTraceIntegrator:
 
                 if temLuz==0:
                     difuso = BLACK
-                    #else:
-                        #new_ray = Ray(hit_point, Normalize(dir))
-                        #difuso = self.trace_ray(new_ray, depth - 1, objeto.kt)
-                        #difuso = difuso * objeto2.kt
                 else:
                     new_ray = Ray(hit_point, Normalize(dir))
-                    difuso = self.trace_ray(new_ray, depth - 1, objeto.kt)
+                    (difuso, luz) = self.trace_ray(new_ray, depth - 1, objeto.kt, minDepth)
             elif aleatorio < obj.kd + obj.ks:        #         ## Raio especular
                 L = Normalize(flip_direction(ray.d))
                 N = objeto.normal
@@ -171,15 +167,10 @@ class PathTraceIntegrator:
                                 temLuz = 1
 
                 if temLuz == 0.0:
-                    if objeto2.kt == 0:
-                        especular = BLACK
-                    else:
-                        new_ray = Ray(hit_point, Normalize(R))
-                        especular = self.trace_ray(new_ray, depth - 1, objeto.kt)
-                        #especular = especular * objeto2.kt
+                    especular = BLACK
                 else:
                     new_ray = Ray(hit_point, Normalize(R))
-                    especular = self.trace_ray(new_ray, depth - 1, objeto.kt)
+                    (especular, luz) = self.trace_ray(new_ray, depth - 1, objeto.kt, minDepth)
             else:                                               ## Raio Transmitido
                 if (objeto.kt > 0):
                     L = Normalize(ray.d)
@@ -258,14 +249,10 @@ class PathTraceIntegrator:
                                         temLuz = 1
 
                         if temLuz == 0:
-                            if objeto2.kt == 0.0:
-                                transmitido = BLACK
-                            else:
-                                new_ray = Ray(hit_point, Normalize(transmitido))
-                                transmitido = self.trace_ray(new_ray, depth - 1, objeto.kt)
-                                #transmitido = transmitido * objeto2.kt
+                            transmitido = BLACK
                         else:
                             new_ray = Ray(hit_point, Normalize(transmitido))
-                            transmitido = self.trace_ray(new_ray, depth-1, objeto.kt)
+                            (transmitido, luz) = self.trace_ray(new_ray, depth-1, objeto.kt, minDepth)
 
-        return result + difuso * objeto.kd + especular * objeto.ks + refletido + transmitido * objeto.kt
+        return (result + difuso * objeto.kd + especular * objeto.ks + refletido + transmitido * objeto.kt, 0)
+        #return RGBColour.soma(result, difuso * objeto.kd)

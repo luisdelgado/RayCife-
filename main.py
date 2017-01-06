@@ -59,7 +59,7 @@ cam = Camera(eye, focal, view_distance, up, height, width, spp)
 # Realiza o path tracing
 pathTracer = PathTraceIntegrator()
 pathTracer.obj_list = obj_list
-cam.render(pathTracer, FILENAME, int(prop_dict["deepth"]), float(prop_dict["tonemapping"]))
+cam.render(pathTracer, FILENAME, int(prop_dict["deepth"]), float(prop_dict["tonemapping"]), int(prop_dict["deepth"]))
 
 #-------------------------------------------------Temporary GUI
 #GUI using tkinter

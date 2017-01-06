@@ -7,7 +7,7 @@ from math import sqrt
 class Objeto:
     area = 0.0
 
-    def __init__(self, A, B, C, color, ka, kd,ks, kt, n):
+    def __init__(self, A, B, C, color, ka, kd, ks, kt, n):
         """
         :param vertices - lista de vertices:
         :param faces: lista de Faces

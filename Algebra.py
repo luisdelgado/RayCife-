@@ -157,13 +157,13 @@ def local_color(obj, hit_normal, ray, ambient):
     return color
 
 def tonemapping(pixel, tmapping):
-    if 0.9999 < pixel.r > 1.0001 :
+    #if 0.9999 < pixel.r > 1.0001 :
         pixel.r = pixel.r / (pixel.r + tmapping)
 
-    if 0.9999 < pixel.g > 1.0001 :
+    #if 0.9999 < pixel.g > 1.0001 :
         pixel.g = pixel.g / (pixel.g + tmapping)
 
-    if 0.9999 < pixel.b > 1.0001 :
+    #if 0.9999 < pixel.b > 1.0001 :
         pixel.b = pixel.b / (pixel.b + tmapping)
 
 # -------------------------------------------------Ray class
