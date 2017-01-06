@@ -7,7 +7,7 @@ from math import sqrt
 class Objeto:
     area = 0.0
 
-    def __init__(self, A, B, C, color, ka, kd, ks, kt, n):
+    def __init__(self, A, B, C, color, ka, kd, ks, kt, n, r):
         """
         :param vertices - lista de vertices:
         :param faces: lista de Faces
@@ -28,6 +28,7 @@ class Objeto:
         self.ks = ks
         self.kt = kt
         self.n = n
+        self.r = r
 
     def intersect(self, ray):
 
@@ -161,7 +162,7 @@ class Light():
 
 class ObjectQuadric():
     def __init__(self, a, b, c, d, e, f, g, h, j, k, color, ka,
-                 kd, ks, kt, n):
+                 kd, ks, kt, n, r):
         self.a = a
         self.b = b
         self.c = c
@@ -178,6 +179,7 @@ class ObjectQuadric():
         self.ks = ks
         self.kt = kt
         self.n = n
+        self.r = r
 
     def intersect(self, ray):
         d = ray.d - ray.o

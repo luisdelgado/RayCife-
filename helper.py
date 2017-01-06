@@ -53,6 +53,7 @@ class Read():
         ks = float(values[6])
         kt = float(values[7])
         n = int(values[8])
+        r = float(values[9])
 
         obj_list = []
 
@@ -61,7 +62,7 @@ class Read():
             B = vertices[f[1] - 1]
             C = vertices[f[2] - 1]
 
-            obj = Objeto(A, B, C, cor, ka, kd, ks, kt, n)
+            obj = Objeto(A, B, C, cor, ka, kd, ks, kt, n, r)
             obj_list.append(obj)
 
         return obj_list

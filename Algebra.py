@@ -141,8 +141,10 @@ def local_color(obj, hit_normal, ray, ambient):
     color = color + lv
 
     # Iluminação especular
-    p1 = Vector3D(p1.x * (-1), p1.y, p1.z)
-    p2 = ray.o
+    L = flip_direction(ray.d)
+    p1 = Normalize(Vector3D(L.x * (-1), L.y, L.z))
+    from main import eye
+    p2 = eye
 
     if (Length(p1) != 1):
         p1 = Normalize(p1)
@@ -150,9 +152,11 @@ def local_color(obj, hit_normal, ray, ambient):
     if (Length(ray.o) != 1):
         p2 = Normalize(ray.o)
 
-    lv = 1.0 * float(obj.ks) * pow(Dot(p1, p2), float(obj.n))
+    angulo = Dot(p1, p2)
 
-    color = color + (RGBColour(lv, lv, lv))
+    lv = WHITE * (float(obj.ks) * pow(angulo, float(obj.n)))
+
+    color = color + lv
 
     return color
 
