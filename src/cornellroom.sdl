@@ -14,8 +14,8 @@ ambient 0.5
 # Luz branca retangulo no centro do teto
 light luzcornell.obj 1.0 1.0 1.0 1.0
 
-npaths 1
-deepth 1
+npaths 30
+deepth 2
 tonemapping 1.0
 seed 9
 

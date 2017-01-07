@@ -4,7 +4,7 @@ Responsavel por controlar o aplicativo
 from helper import read
 from tkinter import * #for GUI
 from Camera import *
-from PathTraceIntegrator import PathTraceIntegrator, RGBColour
+from PathTraceIntegrator import PathTraceIntegrator
 
 print("Lendo Arquivos de configuração e Objetos")
 
